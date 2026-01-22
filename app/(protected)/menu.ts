@@ -1,5 +1,5 @@
-import { ArrowRightLeftIcon, ChartNoAxesCombinedIcon, CodeIcon, FileSpreadsheetIcon, FileTextIcon, HomeIcon, ImagesIcon, MapPinPlusIcon, MonitorDownIcon, PaletteIcon, RotateCcwKeyIcon } from "lucide-react";
-import { auditPath, colorShadesPath, criticalCssPath, dashboardPath, imageOptimizerPath, kmlCreatorPath, modernizrBuildPath, passwordGeneratorPath, pdfCreatorPath, redirectBuilderPath, screenshotGeneratorPath } from "../paths";
+import { ArrowRightLeftIcon, ChartNoAxesCombinedIcon, CodeIcon, FileSpreadsheetIcon, HomeIcon, ImagesIcon, MapPinPlusIcon, MonitorDownIcon, PaletteIcon, RotateCcwKeyIcon } from "lucide-react";
+import { auditPath, colorShadesPath, criticalCssPath, dashboardPath, imageOptimizerPath, kmlCreatorPath, modernizrBuildPath, passwordGeneratorPath, redirectBuilderPath, screenshotGeneratorPath } from "../paths";
 
 export function getMainNav({ pathname, sorted = false, omitDashboard = false }: { pathname: string, sorted?: boolean, omitDashboard?: boolean }) {
     const mainNav = [
@@ -51,13 +51,6 @@ export function getMainNav({ pathname, sorted = false, omitDashboard = false }: 
             url: modernizrBuildPath(),
             icon: CodeIcon,
             isActive: pathname === modernizrBuildPath(),
-        },
-        {
-            title: "PDF Creator",
-            description: "Convert a web page to a PDF.",
-            url: pdfCreatorPath(),
-            icon: FileTextIcon,
-            isActive: pathname === pdfCreatorPath(),
         },
         {
             title: "Redirect Builder",

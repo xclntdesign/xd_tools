@@ -1,8 +1,11 @@
 "use client";
 
 import { getMainNav } from "@/app/(protected)/menu";
+import { signOutAction } from "@/features/auth/actions/sign-out";
+import { LogOutIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "./ui/breadcrumb";
+import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
 import { SidebarTrigger } from "./ui/sidebar";
 
@@ -14,6 +17,10 @@ export function HeaderSidebar () {
     const item = mainNav.find((item) => item.url === pathname);
     if(!item) {
       return null;
+    }
+
+    async function signOut() {
+      await signOutAction();
     }
 
     return (
@@ -40,6 +47,17 @@ export function HeaderSidebar () {
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
+          </div>
+          <div>
+            <Button
+              variant="ghost"
+              type="button"
+              className="cursor-pointer"
+              size="icon"
+              onClick={signOut}
+            >
+              <LogOutIcon />
+            </Button>
           </div>
         </header>
     );

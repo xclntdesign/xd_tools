@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "xclntDesign Traffic Reports",
-  description: "xclntDesign Traffic Reports",
+  title: "xclntDesign Web Tools",
+  description: "xclntDesign Web Tools",
 };
 
 export default function ProtectedLayout({
