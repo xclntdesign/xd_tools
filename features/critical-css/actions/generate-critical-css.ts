@@ -1,5 +1,7 @@
 "use server";
 
+import { createClient } from "@/lib/supabase/server";
+
 export const generateCriticalCssAction = async ({ url }: { url: string }) => {
     let returnData = {
         status: false,
@@ -7,6 +9,14 @@ export const generateCriticalCssAction = async ({ url }: { url: string }) => {
         desktop: "",
         mobile: "",
     };
+
+    const supabase = await createClient();
+    
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data?.user) {
+        returnData.message = "You are not authorized to use this function.";
+        return returnData;
+    }
 
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL!}/api/critical-css`, {
