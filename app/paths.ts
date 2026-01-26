@@ -7,7 +7,7 @@ export const colorShadesPath = () => "/generate/color-shades";
 export const criticalCssPath = () => "/generate/critical-css";
 export const passwordGeneratorPath = () => "/generate/password";
 export const imageOptimizerPath = () => "/generate/image-optimizer";
-export const kmlCreatorPath = () => "/build/kml";
+export const kmlCreatorPath = () => "/build/geojson";
 export const modernizrBuildPath = () => "/build/modernizr";
 export const pdfCreatorPath = () => "/build/pdf";
 export const redirectBuilderPath = () => "/build/redirects";

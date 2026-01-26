@@ -3,6 +3,7 @@ import "dotenv/config";
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "../globals.css";
 import InactivityGuard from "./inactivity-guard";
 import { Providers } from "./providers";
@@ -32,6 +33,12 @@ export default function ProtectedLayout({
       <body
         className={`${geistSans.className} ${geistMono.variable} antialiased`}
       >
+        <head>
+          <Script
+            src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`}
+            strategy="afterInteractive"
+          />
+        </head>
         <Providers>
           <ThemeProvider defaultTheme="dark" attribute="class">
             <InactivityGuard>

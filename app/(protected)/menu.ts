@@ -25,11 +25,11 @@ export function getMainNav({ pathname, sorted = false, omitDashboard = false }: 
             isActive: pathname === criticalCssPath(),
         },
         {
-            title: "Password Generator",
-            description: "Generate a password, and encrypted versions for database entry.",
-            url: passwordGeneratorPath(),
-            icon: RotateCcwKeyIcon,
-            isActive: pathname === passwordGeneratorPath(),
+            title: "GeoJSON Creator",
+            description: "Create GeoJSON files for Google Maps or Mapbox from zip codes.",
+            url: kmlCreatorPath(),
+            icon: MapPinPlusIcon,
+            isActive: pathname === kmlCreatorPath(),
         },
         {
             title: "Image Optimizer",
@@ -39,18 +39,18 @@ export function getMainNav({ pathname, sorted = false, omitDashboard = false }: 
             isActive: pathname === imageOptimizerPath(),
         },
         {
-            title: "KML Creator",
-            description: "Create Google Maps KML files from zip codes.",
-            url: kmlCreatorPath(),
-            icon: MapPinPlusIcon,
-            isActive: pathname === kmlCreatorPath(),
-        },
-        {
             title: "Modernizr Build",
             description: "Create a Modernizr build for extended browser support.",
             url: modernizrBuildPath(),
             icon: CodeIcon,
             isActive: pathname === modernizrBuildPath(),
+        },
+        {
+            title: "Password Generator",
+            description: "Generate a password, and encrypted versions for database entry.",
+            url: passwordGeneratorPath(),
+            icon: RotateCcwKeyIcon,
+            isActive: pathname === passwordGeneratorPath(),
         },
         {
             title: "Redirect Builder",
