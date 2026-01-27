@@ -40,7 +40,7 @@ export function getMainNav({ pathname, sorted = false, omitDashboard = false }: 
         },
         {
             title: "Modernizr Build",
-            description: "Create a Modernizr build for extended browser support.",
+            description: "Create a Modernizr build for browser feature detection.",
             url: modernizrBuildPath(),
             icon: CodeIcon,
             isActive: pathname === modernizrBuildPath(),

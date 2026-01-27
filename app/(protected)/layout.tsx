@@ -30,15 +30,15 @@ export default function ProtectedLayout({
 }>) {
   return (
     <html suppressHydrationWarning lang="en">
-      <body
-        className={`${geistSans.className} ${geistMono.variable} antialiased`}
-      >
-        <head>
+      <head>
           <Script
             src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`}
             strategy="afterInteractive"
           />
         </head>
+      <body
+        className={`${geistSans.className} ${geistMono.variable} antialiased`}
+      >
         <Providers>
           <ThemeProvider defaultTheme="dark" attribute="class">
             <InactivityGuard>
