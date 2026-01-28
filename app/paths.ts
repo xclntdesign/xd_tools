@@ -11,4 +11,4 @@ export const kmlCreatorPath = () => "/build/geojson";
 export const modernizrBuildPath = () => "/build/modernizr";
 export const pdfCreatorPath = () => "/build/pdf";
 export const redirectBuilderPath = () => "/build/redirects";
-export const screenshotGeneratorPath = () => "/generate/screenshots";
+export const screenshotGeneratorPath = () => "/generate/screenshot";
