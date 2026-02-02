@@ -16,6 +16,7 @@ import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
+import { deleteUploadedImages } from "../actions/delete-uploads";
 import { optimizeImagesAction } from "../actions/optimize-images";
 
 const baseUploadUrl = "https://txwgoibxugopyxpzutqp.supabase.co/storage/v1/object/public/optimization/";
@@ -182,7 +183,6 @@ export function ImageOptimizerComponent() {
                 // collect archive (one per chunk typically)
                 const archive = res.data?.archive;
                 if (archive) setArchiveUrls((prev) => [...prev, archive]);
-                console.log(res.data);
 
                 // merge resized results into items
                 setItems((prev) =>
@@ -226,6 +226,8 @@ export function ImageOptimizerComponent() {
                 )
             );
         } finally {
+            const filenames = items.map((i) => i.filename);
+            await deleteUploadedImages(filenames);
             setPending(false);
         }
     }
