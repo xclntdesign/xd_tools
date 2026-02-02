@@ -68,7 +68,7 @@ export function getMainNav({ pathname, sorted = false, omitDashboard = false }: 
         },
         {
             title: "Web Audit",
-            description: "Audit a website.",
+            description: "Examine how well a website runs.",
             url: auditPath(),
             icon: ChartNoAxesCombinedIcon,
             isActive: pathname === auditPath(),

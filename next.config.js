@@ -3,4 +3,5 @@ module.exports = {
     remotePatterns: [new URL('https://txwgoibxugopyxpzutqp.supabase.co/**')],
     formats: ['image/webp'],
   },
+  serverExternalPackages: ["linkinator"],
 }
