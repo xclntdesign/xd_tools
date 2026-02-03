@@ -2,6 +2,7 @@
 
 import { ToolsCard, ToolsCardContent, ToolsCardTitle } from "@/components/tools-card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Field, FieldDescription, FieldError } from "@/components/ui/field";
@@ -118,6 +119,7 @@ export interface StoredAudits {
     id: number;
     audit_details: string;
     audit_url: string;
+    audit_id: string;
     created_at: Date;
 }
 
@@ -153,6 +155,12 @@ export function WebAuditComponent() {
     const [storedAuditId, setStoredAuditId] = useState<string | null>(null);
     const [storedAuditsSearch, setStoredAuditsSearch] = useState("");
     const [storedAudit, setStoredAudit] = useState<StoredAudits | null>(null);
+
+    const [savedAuditId, setSavedAuditId] = useState<string | null>(null);
+
+    const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+    const [emailDialogError, setEmailDialogError] = useState<string | null>(null);
+    const [emailList, setEmailList] = useState<string>("");
 
     const generatorSchema = z.object({
          url: z.url("Invalid URL").min(1, "Full URL is required."),
@@ -428,6 +436,7 @@ export function WebAuditComponent() {
             if(json.error) {
                 toast.error(json.error);
             }
+            setSavedAuditId(json.auditId);
         }
         
         storeAudit();
@@ -459,12 +468,13 @@ export function WebAuditComponent() {
 
     function createStoredAudit(val: string) {
         setStoredAuditId(val);
-        setStoredAudit(storedAudits?.find((audit: StoredAudits) => audit.id.toString() === val) ?? null);
+        setStoredAudit(storedAudits?.find((audit: StoredAudits) => audit.audit_id === val) ?? null);
         setStoredAuditsOpen(false);
     }
 
     async function retrieveWebAudit() {
         setPreviousPending(true);
+        setSavedAuditId(null);
         if(!storedAuditId) {
             setPreviousPending(false);
             toast.error("Please select a previous audit.");
@@ -490,27 +500,89 @@ export function WebAuditComponent() {
             throw new Error(json.error);
         }
 
-        setTech(json.tech);
-        setMeta(json.meta);
-        setWpTheme(json.wpTheme);
-        setWebHost(json.webHost);
-        setLighthouseReports(json.lighthouseReports);
-        setAccessibilityReports(json.accessibilityReports);
-        setBrokenLinks(json.brokenLinks);
+        const audit = JSON.parse(json.audit_details);
+
+        setTech(audit.tech);
+        setMeta(audit.meta);
+        setWpTheme(audit.wpTheme);
+        setWebHost(audit.webHost);
+        setLighthouseReports(audit.lighthouseReports);
+        setAccessibilityReports(audit.accessibilityReports);
+        setBrokenLinks(audit.brokenLinks);
         setAuditsFinished(true);
 
         const completed = {
-            tech: json.tech,
-            meta: json.meta,
-            wpTheme: json.wpTheme,
-            webHost: json.webHost,
-            lighthouseReports: json.lighthouseReports,
-            accessibilityReports: json.accessibilityReports,
-            brokenLinks: json.brokenLinks,
+            tech: audit.tech,
+            meta: audit.meta,
+            wpTheme: audit.wpTheme,
+            webHost: audit.webHost,
+            lighthouseReports: audit.lighthouseReports,
+            accessibilityReports: audit.accessibilityReports,
+            brokenLinks: audit.brokenLinks,
         };
         setCompletedAudits(completed);
 
         setPreviousPending(false);
+    }
+
+    function validateCommaSeparatedEmails(input: string): boolean {
+        if (!input.trim()) return false;
+
+        const emails = input
+            .split(",")
+            .map((email) => email.trim())
+            .filter(Boolean);
+
+        const emailRegex =
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        return emails.every((email) => emailRegex.test(email));
+    }
+
+    const [emailPending, setEmailPending] = useState(false);
+    async function sendWebAuditEmail() {
+        setEmailPending(true);
+        setEmailDialogError(null);
+        if(!savedAuditId && !storedAuditId) {
+            setEmailDialogError("No audit selected. Close this dialog and select an audit.");
+            return;
+        }
+        if(!validateCommaSeparatedEmails(emailList)) {
+            setEmailDialogError("Please include at least one valid email address.");
+            return;
+        }
+        const url = (form.getValues("url") !== "") ? form.getValues("url") : (storedAudit ? storedAudit.audit_url : "");
+        if(url === "") {
+            setEmailDialogError("No URL found. Close this dialog and select an audit.");
+            return;
+        }
+        const emailArr = emailList.split(",").map((email) => email.trim());
+        const auditId = savedAuditId ?? storedAuditId;
+
+        const response = await fetch("/api/web-audits/email", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",                
+            },
+            body: JSON.stringify({
+                url: url,
+                emails: emailArr,
+                auditId: auditId,
+            })
+        });
+
+        if(!response.ok) {
+            throw new Error("Failed to email audit.");
+        }
+
+        const json = await response.json();
+        if(json.error) {
+            throw new Error(json.error);
+        }
+        setEmailDialogOpen(false);
+        setEmailDialogError(null);
+        setEmailPending(false);
+        toast.success("Email sent!");
     }
 
     return (
@@ -613,7 +685,7 @@ export function WebAuditComponent() {
                                                     {storedAudits?.map((audit: StoredAudits) => (
                                                         <CommandItem
                                                             key={audit.id}
-                                                            value={audit.id.toString()}
+                                                            value={audit.audit_id}
                                                             onSelect={createStoredAudit}
                                                             className="w-full"
                                                         >
@@ -668,7 +740,7 @@ export function WebAuditComponent() {
                 )}
                 {auditsFinished && completedAudits && (
                     <>
-                    <div className="flex flex-row justify-end">
+                    <div className="flex flex-row justify-end gap-4">
                         <Button
                             className="cursor-pointer"
                             variant="outline"
@@ -703,6 +775,47 @@ export function WebAuditComponent() {
                         >
                             Reset
                         </Button>
+                        <AlertDialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
+                            <AlertDialogTrigger asChild>
+                                <Button
+                                    className="cursor-pointer"
+                                    type="button"
+                                >
+                                    Email Audit
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Email This Audit</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        You can email a link to this web audit to as many recipients as you like. Viewers of this link will not be required to login. <br /><br />Add a comma-separated list of email addresses below. If you wish to receive a link as well, add your email address to the list.<br /><br />
+                                        <Input
+                                            className="rounded-none border-0 border-b-2 max-w-full"
+                                            onChange={(e) => setEmailList(e.target.value)}
+                                            placeholder="Comma-separated list of email addresses"
+                                        />
+                                        <br /><br /><span className="text-destructive">{emailDialogError}</span>
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel
+                                        className="cursor-pointer"
+                                        onClick={() => setEmailDialogOpen(false)}
+                                        disabled={emailPending}
+                                    >
+                                        Cancel
+                                    </AlertDialogCancel>
+                                    <Button
+                                        className="cursor-pointer"
+                                        type="button"
+                                        onClick={sendWebAuditEmail}
+                                        disabled={emailPending}
+                                    >
+                                        Send
+                                    </Button>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
                     </div>
                     <Tabs defaultValue="site-info" className="w-full">
                         <TabsList variant="line" className="max-w-xs mx-auto">

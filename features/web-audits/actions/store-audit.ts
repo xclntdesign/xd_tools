@@ -5,6 +5,7 @@ export const storeWebAudit = async (url: string, details: string) => {
         status: false,
         message: "",
         description: "",
+        data: "",
     };
 
     const supabase = await createClient();
@@ -23,7 +24,7 @@ export const storeWebAudit = async (url: string, details: string) => {
         audit_details: JSON.parse(details),
     };
 
-    const { error: auditStoreError } = await supabase.from("WebAudits").insert(insertData);
+    const { data: auditStoreData, error: auditStoreError } = await supabase.from("WebAudits").insert(insertData);
 
     if (auditStoreError) {
         console.log(auditStoreError);
@@ -35,5 +36,6 @@ export const storeWebAudit = async (url: string, details: string) => {
     returnStatus.status = true;
     returnStatus.message = "Audit stored successfully.";
     returnStatus.description = "";
+    returnStatus.data = insertData.audit_id;
     return returnStatus;
 }

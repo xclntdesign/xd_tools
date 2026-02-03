@@ -1,4 +1,4 @@
-import { getWebAudit } from "@/features/web-audits/queries/get-audits";
+import { getWebAuditByClientId } from "@/features/web-audits/queries/get-audits";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -9,7 +9,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Invalid request." }, { status: 401 } );
     }
 
-    const { status, message, description, data } = await getWebAudit(body.id);
+    const { status, message, description, data } = await getWebAuditByClientId(body.id);
     
     if(!status) {
         return NextResponse.json({ error: description }, { status: 500 } );
