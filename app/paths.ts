@@ -12,3 +12,4 @@ export const modernizrBuildPath = () => "/build/modernizr";
 export const pdfCreatorPath = () => "/build/pdf";
 export const redirectBuilderPath = () => "/build/redirects";
 export const screenshotGeneratorPath = () => "/generate/screenshot";
+export const projectsPath = () => "/projects";

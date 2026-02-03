@@ -1,5 +1,5 @@
-import { ArrowRightLeftIcon, ChartNoAxesCombinedIcon, CodeIcon, FileSpreadsheetIcon, HomeIcon, ImagesIcon, MapPinPlusIcon, MonitorDownIcon, PaletteIcon, RotateCcwKeyIcon } from "lucide-react";
-import { auditPath, colorShadesPath, criticalCssPath, dashboardPath, imageOptimizerPath, kmlCreatorPath, modernizrBuildPath, passwordGeneratorPath, redirectBuilderPath, screenshotGeneratorPath } from "../paths";
+import { ArrowRightLeftIcon, ChartNoAxesCombinedIcon, ClipboardListIcon, CodeIcon, FileSpreadsheetIcon, HomeIcon, ImagesIcon, MapPinPlusIcon, MonitorDownIcon, PaletteIcon, RotateCcwKeyIcon } from "lucide-react";
+import { auditPath, colorShadesPath, criticalCssPath, dashboardPath, imageOptimizerPath, kmlCreatorPath, modernizrBuildPath, passwordGeneratorPath, projectsPath, redirectBuilderPath, screenshotGeneratorPath } from "../paths";
 
 export function getMainNav({ pathname, sorted = false, omitDashboard = false }: { pathname: string, sorted?: boolean, omitDashboard?: boolean }) {
     const mainNav = [
@@ -51,6 +51,13 @@ export function getMainNav({ pathname, sorted = false, omitDashboard = false }: 
             url: passwordGeneratorPath(),
             icon: RotateCcwKeyIcon,
             isActive: pathname === passwordGeneratorPath(),
+        },
+        {
+            title: "Project Search",
+            description: "Search the original xclntDesign Project Manager.",
+            url: projectsPath(),
+            icon: ClipboardListIcon,
+            isActive: pathname.includes(projectsPath()),
         },
         {
             title: "Redirect Builder",
