@@ -21,9 +21,11 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
+import { ChevronDownIcon, ChevronUpIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { DataTablePagination } from "./data-table-pagination"
+import { Input } from "./ui/input"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -44,6 +46,29 @@ export function DataTable<TData, TValue>({
         pageIndex: 0, // current page number (0-indexed)
         pageSize: defaultPageSize, // number of rows per page
     });
+
+    let initialView;
+    if(tableType === "projects") {
+        initialView = {
+            columnVisibility: {
+                slug: false,
+                id: false,
+            },
+            sorting: [
+                {
+                    id: "jobName",
+                    desc: false,
+                }
+            ]
+        }
+    } else {
+        initialView = {
+            columnVisibility: {
+                slug: false,
+                id: false,
+            },
+        }
+    }
     
     const table = useReactTable({
         data,
@@ -55,16 +80,10 @@ export function DataTable<TData, TValue>({
         onColumnFiltersChange: setColumnFilters,
         getFilteredRowModel: getFilteredRowModel(),
         state: {
-            sorting,
             columnFilters,
             pagination
         },
-        initialState: {
-            columnVisibility: {
-                slug: false,
-                id: false,
-            }
-        },
+        initialState: initialView,
         onPaginationChange: setPagination,
     })
 
@@ -72,6 +91,26 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
+        {tableType === "projects" && (
+            <div className="flex gap-3 items-center justify-end mb-2">
+                <Input
+                    placeholder="Search jobs..."
+                    value={(table?.getColumn("jobName")?.getFilterValue() as string) ?? ""}
+                    onChange={(event) =>
+                        table?.getColumn("jobName")?.setFilterValue(event.target.value)
+                    }
+                    className="rounded-none border-0 border-b-2 max-w-64"
+                />
+                <Input
+                    placeholder="Search clients..."
+                    value={(table?.getColumn("clientName")?.getFilterValue() as string) ?? ""}
+                    onChange={(event) =>
+                        table?.getColumn("clientName")?.setFilterValue(event.target.value)
+                    }
+                    className="rounded-none border-0 border-b-2 max-w-64"
+                />
+            </div>
+        )}
         <div className="overflow-hidden">
             <Table>
                 <TableHeader>
@@ -79,13 +118,9 @@ export function DataTable<TData, TValue>({
                     <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => {
                         return (
-                        <TableHead key={header.id} className={cn(`text-${header.column.columnDef.meta?.style?.textAlign || 'center'} text-muted-foreground py-4`, header.column.columnDef.meta?.className)}style={{ width: header.column.columnDef.size ? header.column.columnDef.size + '%' : 'auto'}}>
-                            {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                            )}
+                        <TableHead key={header.id} className={cn(`text-${header.column.columnDef.meta?.style?.textAlign || 'center'} text-muted-foreground py-4 cursor-pointer`, header.column.columnDef.meta?.className)}style={{ width: header.column.columnDef.size ? header.column.columnDef.size + '%' : 'auto'}} onClick={header.column.getToggleSortingHandler()}>
+                            {flexRender(header.column.columnDef.header, header.getContext())}
+                            {{ asc: <ChevronUpIcon className="inline-flex ml-1 size-4" />, desc: <ChevronDownIcon className="inline-flex ml-1 size-4" /> }[header.column.getIsSorted() as string] ?? null}
                         </TableHead>
                         )
                     })}
