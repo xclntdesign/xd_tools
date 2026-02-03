@@ -30,7 +30,7 @@ function NotFound() {
                                 <p className="mb-4">We're sorry, but we could not find the page you were looking for.</p>
                             </div>
                             <div className="absolute top-0 left-0 z-10 w-full opacity-15">
-                                <h1 className="text-[13rem] lg:text-[30rem] lg:-mt-[15rem] text-center bg-gradient-to-b from-30% from-white to-black dark:from-black dark:to-white text-transparent bg-clip-text">404</h1>
+                                <h1 className="text-[13rem] lg:text-[30rem] lg:-mt-60 text-center bg-linear-to-b from-30% from-white to-black dark:from-black dark:to-white text-transparent bg-clip-text">404</h1>
                             </div>
                         </div>
                     </div>
