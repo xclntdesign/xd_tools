@@ -14,8 +14,13 @@ import { Separator } from "@radix-ui/react-separator";
 import { LoaderCircleIcon } from "lucide-react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
+import json from "react-syntax-highlighter/dist/esm/languages/hljs/json";
+import { dark } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import { toast } from "sonner";
 import z from "zod";
+
+SyntaxHighlighter.registerLanguage('json', json);
 
 function parseSitemapXml(xml: string) {
   const doc = new DOMParser().parseFromString(xml, "application/xml");
@@ -85,8 +90,14 @@ function relativeAfterPrefix(fullUrl: string, prefix: string) {
   return rest.startsWith("/") ? rest : `/${rest || ""}` || "/";
 }
 
-function joinPrefixAndRelative(prefix: string, rel: string) {
-  return stripTrailingSlash(prefix) + (rel.startsWith("/") ? rel : `/${rel}`);
+function joinPrefixAndRelative(prefix: string, rel: string, showExtension?: boolean) {
+    const useExtension = (showExtension !== undefined) ? showExtension : true;
+
+    let returnUrl = stripTrailingSlash(prefix) + (rel.startsWith("/") ? rel : `/${rel}`);
+    if(!useExtension) {
+        returnUrl.replace('.html','');
+    }
+    return returnUrl;
 }
 
 function buildDefaultBetaUrl(betaBase: string, originalBase: string, originalLoc: string) {
@@ -112,7 +123,8 @@ function canonicalizeUrl(u: string) {
 }
 
 
-function toFinalUrl(betaUrl: string, betaBase: string, newBase: string) {
+function toFinalUrl(betaUrl: string, betaBase: string, newBase: string, showExtension?: boolean) {
+    const useExtension = (showExtension !== undefined) ? showExtension: true;
   try {
     const betaPrefix = basePrefix(betaBase);
     const newPrefix = basePrefix(newBase);
@@ -120,10 +132,21 @@ function toFinalUrl(betaUrl: string, betaBase: string, newBase: string) {
     if (!ensureStartsWithPrefix(betaUrl, betaPrefix)) return "";
 
     const rel = relativeAfterPrefix(betaUrl, betaPrefix);
-    return joinPrefixAndRelative(newPrefix, rel);
+    return joinPrefixAndRelative(newPrefix, rel, useExtension);
   } catch {
     return "";
   }
+}
+
+type VercelRedirects = {
+    source: string;
+    destination: string;
+    permanent: boolean;
+    has?: {
+        type: string;
+        key: string;
+        value: string;
+    }[];
 }
 
 export function RedirectBuilderComponent() {
@@ -136,6 +159,9 @@ export function RedirectBuilderComponent() {
 
     const [outputRedirects, setOutputRedirects] = useState<string[] | null>(null);
     const [drawerOpen, setDrawerOpen] = useState(false);
+
+    const [outputJson, setOutputJson] = useState<{ redirects: VercelRedirects[] }>({ redirects: [] });
+    const [vercelDrawerOpen, setVercelDrawerOpen] = useState(false);
 
     const generatorSchema = z
         .object({
@@ -235,9 +261,39 @@ export function RedirectBuilderComponent() {
         setDrawerOpen(true);
     }
 
+    function generateRedirectJson() {
+        const useRows = rows.filter(r => r.use);
+        const output: VercelRedirects[] = [];
+
+        const origPrefix = basePrefix(originalUrl);
+        const betaPrefix = basePrefix(betaBaseUrl);
+        const newPrefix = basePrefix(newBaseUrl);
+        
+        for(const row of useRows) {
+            const rel = relativeAfterPrefix(row.betaUrl, betaPrefix);
+            const relPath = relativeAfterPrefix(row.originalUrl, origPrefix);
+    
+            const el: VercelRedirects = {
+                source: relPath,
+                destination: rel,
+                permanent: true,
+            };
+            output.push(el);
+        }
+
+        setOutputJson({ redirects: output });
+        setVercelDrawerOpen(true);
+    }
+
     function copyRedirectsToClipboard() {
         if (!outputRedirects) return;
         navigator.clipboard.writeText(outputRedirects.join("\n"));
+        toast.success("Copied to clipboard!");
+    }
+
+    function copyJsonToClipboard() {
+        if(!outputJson) return;
+        navigator.clipboard.writeText(JSON.stringify(outputJson));
         toast.success("Copied to clipboard!");
     }
 
@@ -361,19 +417,34 @@ export function RedirectBuilderComponent() {
                             {rows.length > 0 && (
                                 <>
                                 <RedirectListEditor rows={rows} setRows={setRows} betaBaseUrl={betaBaseUrl} newBaseUrl={newBaseUrl} originalUrl={originalUrl} />
-                                <Button
-                                    className="cursor-pointer"
-                                    type="button"
-                                    size="lg"
-                                    disabled={pending}
-                                    onClick={generateRedirectText}
-                                >
-                                    {pending ? (
-                                        <>
-                                        Generating... <LoaderCircleIcon className="size-4 animate-spin" />
-                                        </>
-                                    ) : "Generate Redirects"}
-                                </Button>
+                                <div className="flex flex-row gap-4">
+                                    <Button
+                                        className="cursor-pointer"
+                                        type="button"
+                                        size="lg"
+                                        disabled={pending}
+                                        onClick={generateRedirectText}
+                                    >
+                                        {pending ? (
+                                            <>
+                                            Generating... <LoaderCircleIcon className="size-4 animate-spin" />
+                                            </>
+                                        ) : "Generate for .htaccess"}
+                                    </Button>
+                                    <Button
+                                        className="cursor-pointer"
+                                        type="button"
+                                        size="lg"
+                                        disabled={pending}
+                                        onClick={generateRedirectJson}
+                                    >
+                                        {pending ? (
+                                            <>
+                                            Generating... <LoaderCircleIcon className="size-4 animate-spin" />
+                                            </>
+                                        ) : "Generate for vercel.json"}
+                                    </Button>
+                                </div>
                                 </>
                             )}
                         </ToolsCardContent>
@@ -408,6 +479,36 @@ export function RedirectBuilderComponent() {
                     </DrawerFooter>
                 </DrawerContent>
             </Drawer>
+            <Drawer direction="right" open={vercelDrawerOpen} onOpenChange={setVercelDrawerOpen}>
+                <DrawerContent>
+                    <DrawerHeader>
+                        <DrawerTitle>Redirects</DrawerTitle>
+                        <DrawerDescription>
+                            Copy and paste the following into your vercel.json file.
+                        </DrawerDescription>
+                    </DrawerHeader>
+                    <div className="no-scrollbar overflow-y-auto px-4">
+                        {outputJson && outputJson.redirects.length > 0 && (
+                            <SyntaxHighlighter language="json" style={dark} wrapLongLines={true}>
+                                {JSON.stringify(outputJson)}
+                            </SyntaxHighlighter>
+                        )}
+                    </div>
+                    <DrawerFooter className="flex flex-row gap-4">
+                        <Button
+                            type="button"
+                            size="lg"
+                            className="cursor-pointer"
+                            onClick={copyJsonToClipboard}
+                        >
+                            Copy
+                        </Button>
+                        <DrawerClose asChild>
+                            <Button variant="outline" type="button" className="cursor-pointer">Close</Button>
+                        </DrawerClose>
+                    </DrawerFooter>
+                </DrawerContent>
+            </Drawer>
         </div>
     );
 }
@@ -424,13 +525,15 @@ export function RedirectRowItem({
   onChange,
   betaBaseUrl,
   newBaseUrl,
+  useExtension
 }: {
   row: RedirectRow;
   onChange: (patch: Partial<RedirectRow>) => void;
   betaBaseUrl: string;
   newBaseUrl: string;
+  useExtension: boolean;
 }) {
-    const [finalPreview, setFinalPreview] = useState(toFinalUrl(row.betaUrl, betaBaseUrl, newBaseUrl));
+    const [finalPreview, setFinalPreview] = useState(toFinalUrl(row.betaUrl, betaBaseUrl, newBaseUrl, useExtension));
 
     function changeBetaUrl(newUrl: string) {
         onChange({ betaUrl: newUrl });
@@ -499,6 +602,7 @@ export function RedirectListEditor({
   };
 
     const [showMissingOnly, setShowMissingOnly] = useState(false);
+    const [showExtension, setShowExtension] = useState(true);
 
     const selectAll = () => setRows(prev => prev.map(r => ({ ...r, use: true })));
 
@@ -508,16 +612,38 @@ export function RedirectListEditor({
 
     // Only fill missing beta URLs (recommended)
     const autofillMissingBetaUrls = (betaBase: string, originalBase: string) => {
-    setRows(prev =>
-        prev.map(r => {
-        if (r.betaUrl.trim()) return r;
-        return {
-            ...r,
-            betaUrl: buildDefaultBetaUrl(betaBase, originalBase, r.originalUrl),
-        };
-        })
-    );
+        setRows(prev =>
+            prev.map(r => {
+                if (r.betaUrl.trim()) return r;
+                return {
+                    ...r,
+                    betaUrl: buildDefaultBetaUrl(betaBase, originalBase, r.originalUrl),
+                };
+            })
+        );
     };
+
+    const useFileExtension = (useExt: boolean) => {
+        setShowExtension(useExt);
+       setRows(prev =>
+            prev.map(r => {
+                let newBeta: string = r.betaUrl;
+                if (r.betaUrl.trim()) {
+                    if(useExt) {
+                        if(!newBeta.includes(".html") && newBeta.at(-1) !== "/") {
+                            newBeta += ".html";
+                        }
+                    } else {
+                        newBeta = newBeta.replace(".html","");
+                    }
+                }
+                return {
+                    ...r,
+                    betaUrl: newBeta,
+                };
+            })
+        );
+    }
 
     const [query, setQuery] = useState("");
 
@@ -541,6 +667,7 @@ export function RedirectListEditor({
         selectNone={selectNone}
         clearBetaUrls={clearBetaUrls}
         autofillMissingBetaUrls={autofillMissingBetaUrls}
+        useExtension={useFileExtension}
     />
 
     
@@ -552,6 +679,7 @@ export function RedirectListEditor({
           onChange={(patch) => updateRow(row.id, patch)}
           betaBaseUrl={betaBaseUrl}
           newBaseUrl={newBaseUrl}
+          useExtension={showExtension}
         />
       ))}
     </div>
@@ -569,6 +697,7 @@ export function RedirectToolbar({
   selectNone,
   clearBetaUrls,
   autofillMissingBetaUrls,
+  useExtension,
   // optional
   // autofillAllBetaUrls,
 }: {
@@ -582,10 +711,18 @@ export function RedirectToolbar({
   selectNone: () => void;
   clearBetaUrls: () => void;
   autofillMissingBetaUrls: (betaBase: string, originalBase: string) => void;
+  useExtension: (useExt: boolean) => void;
   // autofillAllBetaUrls?: (betaBase: string, originalBase: string) => void;
 }) {
   const includedCount = rows.filter((r) => r.use).length;
   const missingBetaCount = rows.filter((r) => !r.betaUrl.trim()).length;
+
+  const [allowExtension, setAllowExtension] = useState(true);
+
+  function changeExtensionUse() {
+    setAllowExtension(!allowExtension);
+    useExtension(!allowExtension);
+  }
 
   return (
     <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -615,6 +752,11 @@ export function RedirectToolbar({
       </div>
 
       <div className="ml-auto flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-2">
+          <Switch checked={allowExtension} onCheckedChange={changeExtensionUse} />
+          <span className="text-sm text-muted-foreground">Use .html extension</span>
+        </div>
+
         <div className="flex items-center gap-2">
           <Switch checked={showMissingOnly} onCheckedChange={setShowMissingOnly} />
           <span className="text-sm text-muted-foreground">Missing beta only</span>

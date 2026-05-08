@@ -61,7 +61,7 @@ export function getMainNav({ pathname, sorted = false, omitDashboard = false }: 
         },
         {
             title: "Redirect Builder",
-            description: "Generate redirects for an .htaccess file.",
+            description: "Generate redirects for an .htaccess or vercel.json file.",
             url: redirectBuilderPath(),
             icon: ArrowRightLeftIcon,
             isActive: pathname === redirectBuilderPath(),
