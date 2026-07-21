@@ -142,8 +142,8 @@ export function ColorShadesComponent() {
             const rgbString = `--${slug}-${colorNumbers[index]}-rgb: `;
             const hexString = `--${slug}-${colorNumbers[index]}: `;
 
-            localRgbList.push(rgbString + color[0] + ", " + color[1] + ", " + color[2]);
-            localHexList.push(hexString + chroma(color).hex());
+            localRgbList.push(rgbString + color[0] + ", " + color[1] + ", " + color[2] + ";");
+            localHexList.push(hexString + chroma(color).hex() + ";");
         });
 
         setColors(localColors);
