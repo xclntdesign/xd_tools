@@ -1,5 +1,5 @@
-import { ArrowRightLeftIcon, ChartNoAxesCombinedIcon, ClipboardListIcon, CodeIcon, FileSpreadsheetIcon, HomeIcon, ImagesIcon, MapPinPlusIcon, MonitorDownIcon, PaletteIcon, RotateCcwKeyIcon } from "lucide-react";
-import { auditPath, colorShadesPath, criticalCssPath, dashboardPath, imageOptimizerPath, kmlCreatorPath, modernizrBuildPath, passwordGeneratorPath, projectsPath, redirectBuilderPath, screenshotGeneratorPath } from "../paths";
+import { ArrowRightLeftIcon, ChartNoAxesCombinedIcon, ClipboardListIcon, FileSpreadsheetIcon, HomeIcon, ImagesIcon, MapPinPlusIcon, MonitorDownIcon, PaletteIcon, RotateCcwKeyIcon } from "lucide-react";
+import { auditPath, colorShadesPath, criticalCssPath, dashboardPath, imageOptimizerPath, kmlCreatorPath, passwordGeneratorPath, projectsPath, redirectBuilderPath, screenshotGeneratorPath } from "../paths";
 
 export function getMainNav({ pathname, sorted = false, omitDashboard = false }: { pathname: string, sorted?: boolean, omitDashboard?: boolean }) {
     const mainNav = [
@@ -37,13 +37,6 @@ export function getMainNav({ pathname, sorted = false, omitDashboard = false }: 
             url: imageOptimizerPath(),
             icon: ImagesIcon,
             isActive: pathname === imageOptimizerPath(),
-        },
-        {
-            title: "Modernizr Build",
-            description: "Create a Modernizr build for browser feature detection.",
-            url: modernizrBuildPath(),
-            icon: CodeIcon,
-            isActive: pathname === modernizrBuildPath(),
         },
         {
             title: "Password Generator",
