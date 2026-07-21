@@ -1,5 +1,5 @@
-import { ArrowRightLeftIcon, ChartNoAxesCombinedIcon, ClipboardListIcon, FileSpreadsheetIcon, HomeIcon, ImagesIcon, MapPinPlusIcon, MonitorDownIcon, PaletteIcon, RotateCcwKeyIcon } from "lucide-react";
-import { auditPath, colorShadesPath, criticalCssPath, dashboardPath, imageOptimizerPath, kmlCreatorPath, passwordGeneratorPath, projectsPath, redirectBuilderPath, screenshotGeneratorPath } from "../paths";
+import { ArrowRightLeftIcon, ChartNoAxesCombinedIcon, ClipboardListIcon, FileSpreadsheetIcon, HomeIcon, ImagesIcon, MapPinPlusIcon, MonitorDownIcon, PaletteIcon, RotateCcwKeyIcon, SwatchBookIcon } from "lucide-react";
+import { auditPath, colorShadesPath, criticalCssPath, dashboardPath, imageOptimizerPath, kmlCreatorPath, passwordGeneratorPath, projectsPath, redirectBuilderPath, screenshotGeneratorPath, themePath } from "../paths";
 
 export function getMainNav({ pathname, sorted = false, omitDashboard = false }: { pathname: string, sorted?: boolean, omitDashboard?: boolean }) {
     const mainNav = [
@@ -65,6 +65,13 @@ export function getMainNav({ pathname, sorted = false, omitDashboard = false }: 
             url: screenshotGeneratorPath(),
             icon: MonitorDownIcon,
             isActive: pathname === screenshotGeneratorPath(),
+        },
+        {
+            title: "Theme Generator",
+            description: "Generate color themes for Bootstrap or Tailwind.",
+            url: themePath(),
+            icon: SwatchBookIcon,
+            isActive: pathname === themePath(),
         },
         {
             title: "Web Audit",

@@ -13,3 +13,4 @@ export const pdfCreatorPath = () => "/build/pdf";
 export const redirectBuilderPath = () => "/build/redirects";
 export const screenshotGeneratorPath = () => "/generate/screenshot";
 export const projectsPath = () => "/projects";
+export const themePath = () => "/generate/theme";
