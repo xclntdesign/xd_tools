@@ -553,6 +553,22 @@ function createTailwindInlineTheme(): string {
 }`;
 }
 
+function createTailwindImports() {
+    return `@import "tailwindcss";
+        @import "tw-animate-css";
+        @import "shadcn/tailwind.css";
+        /* Use @fontsource-variable for Google Fonts */
+        @import "@fontsource-variable/inter";
+        /* Import only necessary Font Awesome icons - This kit is FontAwesome 7 */
+        @import "@awesome.me/kit-4f3ad6188d/icons/css/fontawesome.min.css";
+        @import "@awesome.me/kit-4f3ad6188d/icons/css/solid.min.css";
+        @import "@awesome.me/kit-4f3ad6188d/icons/css/light.min.css";
+        @import "@awesome.me/kit-4f3ad6188d/icons/css/brands.min.css";
+        @import "@awesome.me/kit-4f3ad6188d/icons/css/custom-icons.min.css";
+
+        @custom-variant dark (&:is(.dark *));`;
+}
+
 export function themeToTailwindCss(
     theme: GeneratedTheme,
     options: TailwindCssOptions = {},
@@ -566,6 +582,8 @@ export function themeToTailwindCss(
     } = options;
 
     const blocks: string[] = [];
+
+    blocks.push(createTailwindImports());
 
     if (includeThemeInline) {
         blocks.push(createTailwindInlineTheme());
