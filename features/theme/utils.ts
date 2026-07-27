@@ -126,26 +126,64 @@ function toHex({ l, c, h }: Oklch): HexColor {
     }) as HexColor;
 }
 
+const shadeLightnessMix: Record<Shade, number> = {
+    50: 0.92,
+    100: 0.78,
+    200: 0.58,
+    300: 0.38,
+    400: 0.18,
+    500: 0,
+    600: 0.14,
+    700: 0.30,
+    800: 0.46,
+    900: 0.62,
+    950: 0.76,
+};
+
+function normalizeHex(input: string): HexColor {
+    return new Color(input)
+        .toGamut({
+            space: "srgb",
+            method: "oklch.c",
+        })
+        .to("srgb")
+        .toString({
+            format: "hex",
+        }) as HexColor;
+}
+
 /**
  * Creates a standard 50–950 color scale while preserving hue.
  */
 function createScale(input: string): ColorScale {
     const base = parseOklch(input);
+    const seed = normalizeHex(input);
 
-    /*
-     * Prevent unusually muted colors from producing an entirely gray scale,
-     * and unusually vivid colors from making every shade oversaturated.
-     */
-    const baseChroma = Math.max(0.04, Math.min(base.c, 0.28));
+    const lightTarget = 0.985;
+    const darkTarget = 0.16;
 
     return Object.fromEntries(
-        Object.entries(shadeLightness).map(([shade, lightness]) => {
-            const shadeNumber = Number(shade) as Shade;
+        Object.keys(shadeLightnessMix).map((shadeKey) => {
+            const shade = Number(shadeKey) as Shade;
+
+            // Preserve the exact supplied color as shade 500.
+            if (shade === 500) {
+                return [shade, seed];
+            }
+
+            const amount = shadeLightnessMix[shade];
+            const target = shade < 500
+                ? lightTarget
+                : darkTarget;
+
+            const lightness =
+                base.l + (target - base.l) * amount;
+
             const chroma =
-                baseChroma * shadeChromaMultipliers[shadeNumber];
+                base.c * shadeChromaMultipliers[shade];
 
             return [
-                shadeNumber,
+                shade,
                 toHex({
                     l: lightness,
                     c: chroma,
@@ -256,11 +294,11 @@ function createMode(
         mutedForeground: neutral[600],
         border: neutral[200],
         primary: primary[600],
-        primaryForeground: getForeground(primary[600]),
+        primaryForeground: getForeground(primary[500]),
         secondary: secondary[600],
-        secondaryForeground: getForeground(secondary[600]),
+        secondaryForeground: getForeground(secondary[500]),
         accent: accent[600],
-        accentForeground: getForeground(accent[600]),
+        accentForeground: getForeground(accent[500]),
     };
 }
 
