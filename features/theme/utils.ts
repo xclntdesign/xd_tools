@@ -293,11 +293,11 @@ function createMode(
         muted: neutral[100],
         mutedForeground: neutral[600],
         border: neutral[200],
-        primary: primary[600],
+        primary: primary[500],
         primaryForeground: getForeground(primary[500]),
-        secondary: secondary[600],
+        secondary: secondary[500],
         secondaryForeground: getForeground(secondary[500]),
-        accent: accent[600],
+        accent: accent[500],
         accentForeground: getForeground(accent[500]),
     };
 }
