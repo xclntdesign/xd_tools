@@ -87,6 +87,28 @@ function ThemeGeneratorComponent() {
         }
     }
 
+    const [primaryColor, setPrimaryColor] = useState("");
+    const [secondaryColor, setSecondaryColor] = useState("");
+    const [tertiaryColor, setTertiaryColor] = useState("");
+    function changeColorPreview(colorType: "primary" | "secondary" | "tertiary", color: string) {
+        if(colorType === "primary") {
+            if(color.length > 3) {
+                setPrimaryColor(color);
+            }
+            form.setValue('primaryColor', color);
+        } else if(colorType === "secondary") {
+            if(color.length > 3) {
+                setSecondaryColor(color);
+            }
+            form.setValue('secondaryColor', color);
+        } else if(colorType === "tertiary") {
+            if(color.length > 3) {
+                setTertiaryColor(color);
+            }
+            form.setValue('tertiaryColor', color);
+        }
+    }
+
     return (
         <div className="flex flex-col gap-4 w-full">
             <form id="color-generator-form" onSubmit={form.handleSubmit(generateThemeColors, () => {
@@ -106,12 +128,19 @@ function ThemeGeneratorComponent() {
                                                 <FieldLabel htmlFor="primaryColor">Primary Color:</FieldLabel>
                                                 <em className="text-muted-foreground text-sm">required</em>
                                             </div>
-                                            <Input
-                                                {...field}
-                                                placeholder="Hex value (#000000, #fff, etc)"
-                                                aria-invalid={fieldState.invalid}
-                                                className={cn("max-w-full rounded-none border-0 border-b-2", {"border-destructive": fieldState.invalid}, {"border-green-500": !fieldState.invalid && field.value})}
-                                            />
+                                            <div className="flex flex-row gap-4 items-center">
+                                                <Input
+                                                    {...field}
+                                                    placeholder="Hex value (#000000, #fff, etc)"
+                                                    aria-invalid={fieldState.invalid}
+                                                    className={cn("max-w-full rounded-none border-0 border-b-2", {"border-destructive": fieldState.invalid}, {"border-green-500": !fieldState.invalid && field.value})}
+                                                    onChange={(e) => changeColorPreview("primary", e.target.value)}
+                                                />
+                                                <div
+                                                    className="block w-6 h-6"
+                                                    style={{ backgroundColor: primaryColor }}
+                                                />
+                                            </div>
                                             {fieldState.invalid && (
                                                 <FieldError errors={[fieldState.error]} />
                                             )}
@@ -127,12 +156,19 @@ function ThemeGeneratorComponent() {
                                                 <FieldLabel htmlFor="primaryColor">Secondary Color:</FieldLabel>
                                                 <em className="text-muted-foreground text-sm">optional</em>
                                             </div>
-                                            <Input
-                                                {...field}
-                                                placeholder="Hex value (#000000, #fff, etc)"
-                                                aria-invalid={fieldState.invalid}
-                                                className={cn("max-w-full mb-2 rounded-none border-0 border-b-2", {"border-destructive": fieldState.invalid}, {"border-green-500": !fieldState.invalid && field.value})}
-                                            />
+                                            <div className="flex flex-row gap-4 items-center">
+                                                <Input
+                                                    {...field}
+                                                    placeholder="Hex value (#000000, #fff, etc)"
+                                                    aria-invalid={fieldState.invalid}
+                                                    className={cn("max-w-full rounded-none border-0 border-b-2", {"border-destructive": fieldState.invalid}, {"border-green-500": !fieldState.invalid && field.value})}
+                                                    onChange={(e) => changeColorPreview("secondary", e.target.value)}
+                                                />
+                                                <div
+                                                    className="block w-6 h-6"
+                                                    style={{ backgroundColor: secondaryColor }}
+                                                />
+                                            </div>
                                             {fieldState.invalid && (
                                                 <FieldError errors={[fieldState.error]} />
                                             )}
@@ -148,12 +184,19 @@ function ThemeGeneratorComponent() {
                                                 <FieldLabel htmlFor="primaryColor">Tertiary Color:</FieldLabel>
                                                 <em className="text-muted-foreground text-sm">optional</em>
                                             </div>
-                                            <Input
-                                                {...field}
-                                                placeholder="Hex value (#000000, #fff, etc)"
-                                                aria-invalid={fieldState.invalid}
-                                                className={cn("max-w-full mb-2 rounded-none border-0 border-b-2", {"border-destructive": fieldState.invalid}, {"border-green-500": !fieldState.invalid && field.value})}
-                                            />
+                                            <div className="flex flex-row gap-4 items-center">
+                                                <Input
+                                                    {...field}
+                                                    placeholder="Hex value (#000000, #fff, etc)"
+                                                    aria-invalid={fieldState.invalid}
+                                                    className={cn("max-w-full rounded-none border-0 border-b-2", {"border-destructive": fieldState.invalid}, {"border-green-500": !fieldState.invalid && field.value})}
+                                                    onChange={(e) => changeColorPreview("tertiary", e.target.value)}
+                                                />
+                                                <div
+                                                    className="block w-6 h-6"
+                                                    style={{ backgroundColor: tertiaryColor }}
+                                                />
+                                            </div>
                                             {fieldState.invalid && (
                                                 <FieldError errors={[fieldState.error]} />
                                             )}
